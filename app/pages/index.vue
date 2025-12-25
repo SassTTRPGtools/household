@@ -1,6 +1,6 @@
 <template>
   <div class="character-sheet-container min-h-screen p-8" :style="backgroundStyle">
-    <div class="character-sheet max-w-[1200px] mx-auto bg-[#f5f0e8] shadow-2xl rounded-lg overflow-hidden">
+    <div class="character-sheet max-w-[1600px] mx-auto bg-[#f5f0e8] shadow-2xl rounded-lg overflow-hidden">
       <!-- 主要內容區域 -->
       <div class="grid grid-cols-12 gap-0">
         
@@ -28,7 +28,7 @@
             </div>
             <div v-for="skill in category.skills" :key="skill.name" class="flex items-center justify-between mb-1 text-sm relative z-10 pl-20">
               <div class="skill-tooltip-container relative">
-                <span class="text-[#5a4a3a] uppercase text-x cursor-help pl-20">{{ skill.name_cn }}</span>
+                <span class="text-[#5a4a3a] uppercase text-x cursor-help pl-40">{{ skill.name_cn }}</span>
                 <div class="skill-tooltip">
                   <div class="text-xs">{{ skill.description }}</div>
                 </div>
@@ -73,19 +73,20 @@
         </div>
 
         <!-- 中間欄 - Aces, Traits, Moves -->
-        <div class="col-span-5 border-r border-[#8b7355] p-4 space-y-6">
+        <div class="col-span-3 border-r border-[#8b7355] p-4 space-y-6">
           
           <!-- Aces up the Sleeve -->
           <div class="section">
             <div class="text-center mb-3">
               <h2 class="text-xl font-serif text-[#5a4a3a] italic mb-4">王牌在手</h2>
-              <div class="flex items-center justify-center gap-3">
+              <div class="aces-container flex items-end justify-center relative" style="height: 120px;">
                 <img 
                   v-for="(ace, index) in aces" 
                   :key="index"
                   :src="`/assets/sheet/${ace.icon}${ace.active ? '-filled' : ''}.svg`" 
                   class="ace-card cursor-pointer transition-all duration-300 hover:scale-110"
                   :class="{ 'opacity-100': ace.active, 'opacity-60': !ace.active }"
+                  :style="getAceCardStyle(index)"
                   @click="toggleAce(index)"
                   :alt="`${ace.name} Ace`" 
                 />
@@ -129,8 +130,8 @@
           </div>
         </div>
 
-        <!-- 右側欄 - Decorum, Conditions, Contracts, Character Info -->
-        <div class="col-span-4 p-4 space-y-6">
+        <!-- 第三栏 - Decorum, Stress, Conditions -->
+        <div class="col-span-3 border-r border-[#8b7355] p-4 space-y-6">
           
           <!-- Decorum -->
           <div class="section">
@@ -154,7 +155,7 @@
             <div class="flex justify-center gap-1 mb-2">
               <img v-for="i in 11" :key="i"
                    :src="getStressIcon(i)"
-                   class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform"
+                   class="w-6 h-6 cursor-pointer hover:scale-110 transition-transform"
                    :alt="`Stress ${i}`"
                    @click="setStressLevel(i)" />
             </div>
@@ -186,6 +187,27 @@
             <textarea class="w-full border border-[#8b7355] rounded px-3 py-2 text-sm bg-white resize-none" 
                       rows="4"></textarea>
           </div>
+
+          <!-- TTT -->
+          <div class="section">
+            <div class="flex justify-center items-center gap-2 mb-2">
+              <img 
+                v-for="i in 5" 
+                :key="i"
+                :src="currentTTT === i ? `/assets/sheet/ttt${i}-filled.svg` : `/assets/sheet/ttt${i}-filled-white.svg`"
+                class="h-8 cursor-pointer hover:scale-110 transition-transform"
+                :alt="`TTT ${i}`"
+                @click="setTTT(i)" />
+            </div>
+            <textarea 
+              class="w-full border border-[#8b7355] rounded px-3 py-2 text-sm bg-white resize-none" 
+              rows="2"
+              placeholder="記錄..."></textarea>
+          </div>
+        </div>
+
+        <!-- 第四栏 - Character Info, Memories, Experiences -->
+        <div class="col-span-3 p-4 space-y-6">
 
           <!-- Character Info Card -->
           <div class="character-info relative bg-gradient-to-b from-[#8b7ba8] to-[#6b5b88] rounded-lg p-4 text-white">
@@ -269,6 +291,24 @@ const aces = ref([
 
 const toggleAce = (index: number) => {
   aces.value[index].active = !aces.value[index].active
+}
+
+const getAceCardStyle = (index: number) => {
+  // 5张牌，中间的牌为 0度，左右依次旋转
+  const totalCards = 5
+  const rotationStep = 12 // 每张牌间隔的角度
+  const middleIndex = (totalCards - 1) / 2
+  const rotation = (index - middleIndex) * rotationStep
+  
+  // 根据位置调整垂直偏移，中间的牌最低
+  const verticalOffset = Math.abs(index - middleIndex) * 8
+  
+  return {
+    transform: `rotate(${rotation}deg) translateY(-${verticalOffset}px)`,
+    transformOrigin: 'center bottom',
+    position: 'absolute',
+    left: `${35 + index * 55}px`
+  }
 }
 
 // 技能類別等級
@@ -498,8 +538,15 @@ const getConditionIcon = (condition: any) => {
       : `/assets/sheet/${condition.icon}.svg`
   } else {
     // 其他状态使用方框图案
-    return condition.checked ? '/assets/sheet/square-small.png' : '/assets/sheet/square-small-red.png' 
+    return condition.checked ?'/assets/sheet/square-small.png' :  '/assets/sheet/square-small-red.png'
   }
+}
+
+// TTT 等級 (1-5)
+const currentTTT = ref(1)
+
+const setTTT = (level: number) => {
+  currentTTT.value = level
 }
 </script>
 
@@ -527,10 +574,16 @@ input[type="radio"] {
 }
 
 /* Aces Cards */
+.aces-container {
+  position: relative;
+  min-width: 350px;
+}
+
 .ace-card {
   width: 70px;
   height: 100px;
   filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
+  transition: all 0.3s ease;
 }
 
 .ace-card:hover {
@@ -586,7 +639,7 @@ input[type="radio"] {
 
 .skill-tooltip {
   position: absolute;
-  left: 100%;
+  right: 20%;
   top: 50%;
   transform: translateY(-50%);
   background-color: rgba(90, 74, 58, 0.95);
@@ -598,9 +651,9 @@ input[type="radio"] {
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
   z-index: 20;
-  margin-left: 8px;
+  margin-right: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  min-width: 250px;
+  min-width: 200px;
   max-width: 350px;
   white-space: normal;
 }
@@ -608,11 +661,11 @@ input[type="radio"] {
 .skill-tooltip::after {
   content: '';
   position: absolute;
-  right: 100%;
+  left: 100%;
   top: 50%;
   transform: translateY(-50%);
   border: 6px solid transparent;
-  border-right-color: rgba(90, 74, 58, 0.95);
+  border-left-color: rgba(90, 74, 58, 0.95);
 }
 
 .skill-tooltip-container:hover .skill-tooltip {
