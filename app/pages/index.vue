@@ -7,70 +7,33 @@
         <!-- 左側欄 - Society, Academia, War, Street -->
         <div class="col-span-3 border-r border-[#8b7355] p-4 space-y-6">
           
-          <!-- Society 區塊 -->
-          <div class="skill-section relative" style="background-image: url('/assets/dice/face_3_alpha.png'); background-size: auto 110%; background-position: left center; background-repeat: no-repeat;">
+          <!-- 技能區塊循環 -->
+          <div 
+            v-for="category in skillCategories" 
+            :key="category.id"
+            class="skill-section relative" 
+            :style="{
+              backgroundImage: `url('${category.backgroundImage}')`,
+              backgroundSize: 'auto 110%',
+              backgroundPosition: 'left center',
+              backgroundRepeat: 'no-repeat'
+            }">
             <div class="flex items-center gap-2 mb-3 relative z-10 pl-7">
-              <h2 class="text-lg font-serif text-[#5a4a3a]">社交</h2>
-              <img src="/assets/sheet/heart.svg" class="w-4 h-4" alt="Heart" />
-              <img src="/assets/sheet/heart.svg" class="w-4 h-4 opacity-30" alt="Heart Empty" />
+              <h2 class="text-lg font-serif text-[#5a4a3a]">{{ category.title }}</h2>
+              <img v-for="i in 2" :key="i" 
+                   :src="i <= category.level ? `/assets/sheet/${category.icon}-filled.svg` : `/assets/sheet/${category.icon}.svg`" 
+                   class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
+                   :alt="category.icon" 
+                   @click="toggleCategoryLevel(category.id, i)" />
             </div>
-            <div v-for="skill in societySkills" :key="skill.name" class="flex items-center justify-between mb-1 text-sm relative z-10 pl-20">
+            <div v-for="skill in category.skills" :key="skill.name" class="flex items-center justify-between mb-1 text-sm relative z-10 pl-20">
               <span class="text-[#5a4a3a] uppercase text-x font-medium justify-end pl-20">{{ skill.name_cn }}</span>
               <div class="flex gap-1">
                 <img v-for="i in 4" :key="i" 
-                     :src="i <= skill.level ? '/assets/sheet/heart-filled.svg' : '/assets/sheet/heart.svg'" 
-                     class="w-3 h-3" alt="Level" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Academia 區塊 -->
-          <div class="skill-section relative" style="background-image: url('/assets/dice/face_4_alpha.png'); background-size: auto 110%; background-position: left center; background-repeat: no-repeat;">
-            <div class="flex items-center gap-2 mb-3 relative z-10 pl-7">
-              <h2 class="text-lg font-serif text-[#5a4a3a]">學識</h2>
-              <img src="/assets/sheet/diamond.svg" class="w-4 h-4" alt="Diamond" />
-              <img src="/assets/sheet/diamond.svg" class="w-4 h-4 opacity-30" alt="Diamond Empty" />
-            </div>
-            <div v-for="skill in academiaSkills" :key="skill.name" class="flex items-center justify-between mb-1 text-sm relative z-10 pl-20">
-              <span class="text-[#5a4a3a] uppercase text-x font-medium justify-end pl-20">{{ skill.name_cn }}</span>
-              <div class="flex gap-1">
-                <img v-for="i in 4" :key="i" 
-                     :src="i <= skill.level ? '/assets/sheet/diamond-filled.svg' : '/assets/sheet/diamond.svg'" 
-                     class="w-3 h-3" alt="Level" />
-              </div>
-            </div>
-          </div>
-
-          <!-- War 區塊 -->
-          <div class="skill-section relative" style="background-image: url('/assets/dice/face_5_alpha.png'); background-size: auto 110%; background-position: left center; background-repeat: no-repeat;">
-            <div class="flex items-center gap-2 mb-3 relative z-10 pl-7">
-              <h2 class="text-lg font-serif text-[#5a4a3a]">戰事</h2>
-              <img src="/assets/sheet/club.svg" class="w-4 h-4" alt="Club" />
-              <img src="/assets/sheet/club.svg" class="w-4 h-4 opacity-30" alt="Club Empty" />
-            </div>
-            <div v-for="skill in warSkills" :key="skill.name" class="flex items-center justify-between mb-1 text-sm relative z-10 pl-20">
-              <span class="text-[#5a4a3a] uppercase text-x font-medium justify-end pl-20">{{ skill.name_cn }}</span>
-              <div class="flex gap-1">
-                <img v-for="i in 4" :key="i" 
-                     :src="i <= skill.level ? '/assets/sheet/club-filled.svg' : '/assets/sheet/club.svg'" 
-                     class="w-3 h-3" alt="Level" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Street 區塊 -->
-          <div class="skill-section relative" style="background-image: url('/assets/dice/face_6_alpha.png'); background-size: auto 110%; background-position: left center; background-repeat: no-repeat;">
-            <div class="flex items-center gap-2 mb-3 relative z-10 pl-7">
-              <h2 class="text-lg font-serif text-[#5a4a3a]">街巷</h2>
-              <img src="/assets/sheet/spade.svg" class="w-4 h-4" alt="Spade" />
-              <img src="/assets/sheet/spade.svg" class="w-4 h-4 opacity-30" alt="Spade Empty" />
-            </div>
-            <div v-for="skill in streetSkills" :key="skill.name" class="flex items-center justify-between mb-1 text-sm relative z-10 pl-20">
-              <span class="text-[#5a4a3a] uppercase text-x font-medium justify-end pl-20">{{ skill.name_cn }}</span>
-              <div class="flex gap-1">
-                <img v-for="i in 4" :key="i" 
-                     :src="i <= skill.level ? '/assets/sheet/spade-filled.svg' : '/assets/sheet/spade.svg'" 
-                     class="w-3 h-3" alt="Level" />
+                     :src="i <= skill.level ? `/assets/sheet/${category.icon}-filled.svg` : `/assets/sheet/${category.icon}.svg`" 
+                     class="w-3 h-3 cursor-pointer hover:scale-110 transition-transform" 
+                     alt="Level" 
+                     @click="toggleSkillLevel(category.id, skill.name, i)" />
               </div>
             </div>
           </div>
@@ -288,6 +251,46 @@ const toggleAce = (index: number) => {
   aces.value[index].active = !aces.value[index].active
 }
 
+// 技能類別等級
+const categoryLevels = ref({
+  society: 1,
+  academia: 1,
+  war: 1,
+  street: 1
+})
+
+// 切換技能类别等级 (1-2)
+const toggleCategoryLevel = (categoryId: string, clickedIndex: number) => {
+  const currentLevel = categoryLevels.value[categoryId]
+  // 如果点击的是当前最后一个填充的，则回到 level 1
+  if (clickedIndex === currentLevel) {
+    categoryLevels.value[categoryId] = 1
+  } else {
+    // 否则设置为点击的索引
+    categoryLevels.value[categoryId] = clickedIndex
+  }
+}
+
+// 切換技能等级 (1-4)
+const toggleSkillLevel = (categoryId: string, skillName: string, clickedIndex: number) => {
+  const targetSkills = 
+    categoryId === 'society' ? societySkills :
+    categoryId === 'academia' ? academiaSkills :
+    categoryId === 'war' ? warSkills :
+    streetSkills
+  
+  const skill = targetSkills.value.find(s => s.name === skillName)
+  if (skill) {
+    // 如果点击的是当前最后一个填充的，则回到 level 1
+    if (clickedIndex === skill.level) {
+      skill.level = 1
+    } else {
+      // 否则设置为点击的索引
+      skill.level = clickedIndex
+    }
+  }
+}
+
 const societySkills = ref([
   { name: 'ART',  name_cn: '藝術',  level: 1 },
   { name: 'CHARM',  name_cn: '魅力', level: 1 },
@@ -318,6 +321,42 @@ const streetSkills = ref([
   { name: 'ELUSION', name_cn: '迴避', level: 1 },
   { name: 'EXPLORATION', name_cn: '探索', level: 1 },
   { name: 'SHOOT', name_cn: '射術', level: 1 }
+])
+
+// 技能類別配置
+const skillCategories = computed(() => [
+  {
+    id: 'society',
+    title: '社交',
+    icon: 'heart',
+    level: categoryLevels.value.society,
+    backgroundImage: '/assets/dice/face_3_alpha.png',
+    skills: societySkills.value
+  },
+  {
+    id: 'academia',
+    title: '學識',
+    icon: 'diamond',
+    level: categoryLevels.value.academia,
+    backgroundImage: '/assets/dice/face_4_alpha.png',
+    skills: academiaSkills.value
+  },
+  {
+    id: 'war',
+    title: '戰事',
+    icon: 'club',
+    level: categoryLevels.value.war,
+    backgroundImage: '/assets/dice/face_5_alpha.png',
+    skills: warSkills.value
+  },
+  {
+    id: 'street',
+    title: '街巷',
+    icon: 'spade',
+    level: categoryLevels.value.street,
+    backgroundImage: '/assets/dice/face_6_alpha.png',
+    skills: streetSkills.value
+  }
 ])
 
 const conditions = ref([
