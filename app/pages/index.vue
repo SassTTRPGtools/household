@@ -97,7 +97,7 @@
           <div class="section">
             <h2 class="text-xl font-serif text-[#5a4a3a] text-center mb-2 border-b border-[#8b7355] pb-2">
               <img src="/assets/sheet/deco1.svg" class="inline w-16 mb-1" alt="Decoration" />
-              Traits
+              特質
               <img src="/assets/sheet/deco1.svg" class="inline w-16 mb-1" alt="Decoration" />
             </h2>
             <div class="space-y-2">
@@ -111,7 +111,7 @@
           <div class="section">
             <h2 class="text-xl font-serif text-[#5a4a3a] text-center mb-2 border-b border-[#8b7355] pb-2">
               <img src="/assets/sheet/deco1.svg" class="inline w-16 mb-1" alt="Decoration" />
-              Moves
+              招式
               <img src="/assets/sheet/deco1.svg" class="inline w-16 mb-1" alt="Decoration" />
             </h2>
             <div class="space-y-2">
@@ -627,7 +627,7 @@ input[type="radio"] {
 
 .condition-tooltip {
   position: absolute;
-  left: 100%;
+  right: 100%;
   top: 50%;
   transform: translateY(-50%);
   background-color: rgba(90, 74, 58, 0.95);
@@ -639,7 +639,7 @@ input[type="radio"] {
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
   z-index: 20;
-  margin-left: 8px;
+  margin-right: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   min-width: 280px;
   max-width: 400px;
@@ -649,11 +649,11 @@ input[type="radio"] {
 .condition-tooltip::after {
   content: '';
   position: absolute;
-  right: 100%;
+  left: 100%;
   top: 50%;
   transform: translateY(-50%);
   border: 6px solid transparent;
-  border-right-color: rgba(90, 74, 58, 0.95);
+  border-left-color: rgba(90, 74, 58, 0.95);
 }
 
 .condition-tooltip-container:hover .condition-tooltip {
