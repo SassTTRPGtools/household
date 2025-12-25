@@ -139,7 +139,6 @@
               <div v-for="(level, index) in decorumLevels" :key="index" class="decorum-tooltip-container pl-5">
                 <img :src="currentDecorum === index + 1 ? '/assets/sheet/butterfly-filled.svg' : '/assets/sheet/butterfly.svg'" 
                      class="w-8 h-8 cursor-pointer hover:scale-110 transition-transform" 
-                     :alt="level.name_cn"
                      @click="setDecorum(index + 1)" />
                      {{ level.name_cn }}
                 <div class="decorum-tooltip">
@@ -151,30 +150,39 @@
 
           <!-- Stress -->
           <div class="section">
-            <h2 class="text-xl font-serif text-[#5a4a3a] text-center mb-3">Stress</h2>
-            <div class="grid grid-cols-11 gap-1 mb-2">
-              <div v-for="i in 11" :key="i" 
-                   class="w-4 h-4 border border-[#8b7355] bg-white"></div>
+            <h2 class="text-xl font-serif text-[#5a4a3a] text-center mb-3">壓力</h2>
+            <div class="flex justify-center gap-1 mb-2">
+              <img v-for="i in 11" :key="i"
+                   :src="getStressIcon(i)"
+                   class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform"
+                   :alt="`Stress ${i}`"
+                   @click="setStressLevel(i)" />
             </div>
           </div>
 
           <!-- Conditions -->
           <div class="section">
-            <h2 class="text-xl font-serif text-[#5a4a3a] text-center mb-3">Conditions</h2>
-            <div class="space-y-2 text-sm">
-              <div v-for="condition in conditions" :key="condition.name" class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="text-[#5a4a3a] uppercase text-xs">{{ condition.name }}</span>
-                  <img src="/assets/sheet/heart.svg" class="w-4 h-4" alt="Icon" />
+            <h2 class="text-xl font-serif text-[#5a4a3a] text-center mb-3">狀態</h2>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              <div v-for="condition in conditions" :key="condition.name_en" class="flex items-center justify-between">
+                <div class="condition-tooltip-container flex items-center gap-2 cursor-help">
+                  <span class="text-[#5a4a3a] uppercase text-x">{{ condition.name_cn }}</span>
+                  <div class="condition-tooltip">
+                    <div class="text-xs whitespace-pre-line">{{ condition.description }}</div>
+                  </div>
                 </div>
-                <input type="checkbox" class="w-4 h-4" />
+                <img 
+                  :src="getConditionIcon(condition)"
+                  class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform"
+                  :alt="condition.name_en"
+                  @click="toggleCondition(condition)" />
               </div>
             </div>
           </div>
 
           <!-- Contracts -->
           <div class="section">
-            <h2 class="text-xl font-serif text-[#5a4a3a] text-center mb-2">Contracts</h2>
+            <h2 class="text-xl font-serif text-[#5a4a3a] text-center mb-2">契約</h2>
             <textarea class="w-full border border-[#8b7355] rounded px-3 py-2 text-sm bg-white resize-none" 
                       rows="4"></textarea>
           </div>
@@ -372,14 +380,71 @@ const skillCategories = computed(() => [
 ])
 
 const conditions = ref([
-  { name: 'EMBARRASSED', icon: 'heart' },
-  { name: 'TIRED', icon: 'heart' },
-  { name: 'CONFUSED', icon: 'diamond' },
-  { name: 'SICK', icon: 'diamond' },
-  { name: 'HURT', icon: 'club' },
-  { name: 'POISONED', icon: 'club' },
-  { name: 'FRIGHTENED', icon: 'spade' },
-  { name: 'BROKEN', icon: 'spade' }
+  { 
+    name_en: 'Embarrassed', 
+    name_cn: '尷尬', 
+    icon: 'heart', 
+    checked: false,
+    description: `在社交領域的所有擲骰承受 –1。你可能因為出醜、被人讓你難堪，或遭逢令人灼痛的羞辱或失敗而陷入尷尬。
+要移除此狀態，你必須贏得他人的尊重或重視，例如協助有需要的人，或證明你的英勇。或者，一名朋友可以透過在照護＋社交進行一次關鍵成功的擲骰來鼓舞你，從而移除此狀態。`
+  },
+  { 
+    name_en: 'Tired', 
+    name_cn: '疲憊', 
+    icon: '', 
+    checked: false,
+    description: `你不承受任何直接劣勢，但距離陷入崩潰又近了一步。在付出巨大努力後，或長時間未能充分進食、飲水或睡眠時，你可能會變得疲憫。
+要移除此狀態，在溫暖的床上睡一覺，或前往餐館享用一頓花費 2 枚金錢的好餐。在營地中，你或一名朋友也可以進行一次工匠＋社交的關鍵成功擲骰，準備一頓佳餚，讓所有享用的人都感到恢復精神。`
+  },
+  { 
+    name_en: 'Confused', 
+    name_cn: '困惑', 
+    icon: 'diamond', 
+    checked: false,
+    description: `在學識領域的所有擲骰承受 –1。你可能因為思緒中斷或過度專注、頭部受到撞擊，或因情緒激動、憤怒、分心而變得困惑。
+要移除此狀態，你必須花些時間清理思緒或放鬆，例如花費2 枚金錢外出用餐或看戲。`
+  },
+  { 
+    name_en: 'Sick', 
+    name_cn: '生病', 
+    icon: '', 
+    checked: false,
+    description: `即使在休息或獲得一次片刻喘息之後，你的壓力仍至少維持在 3 點。你可能因在寒冷中露宿、吃了腐敗的食物，或接觸到刺痛植物或有害孢子而生病。
+要移除此狀態，你必須在 3 天內不承受任何其他狀態，並同時確保良好飲食與遮蔽處所。`
+  },
+  { 
+    name_en: 'Hurt', 
+    name_cn: '受傷', 
+    icon: 'club', 
+    checked: false,
+    description: `在戰事領域的所有擲骰承受 –1。當你遭受嚴重傷勢、被敵人重擊，或自高處墜落時，便可能受傷。
+要移除此狀態，進行一次照護＋學識的關鍵成功擲骰。或者，若你身在城鎮，也可以前往醫師處，以 2 枚金錢治療傷勢。`
+  },
+  { 
+    name_en: 'Poisoned', 
+    name_cn: '中毒', 
+    icon: '', 
+    checked: false,
+    description: `在每個回合開始時，敘述者擲一顆數字骰。若結果為偶數：你承受 1 點壓力。若你已處於壓力滿載，並因本狀態承受額外壓力，你會陷入崩潰，但不會退場。
+當你接觸到有毒物質，或被討厭的野獸所傷時，便可能中毒。
+要移除此狀態，你可以以探索＋學識進行一次關鍵成功的擲骰來製作解毒劑，或以3 枚金錢購買一份。偶爾，敘述者也可能裁定：為了移除某種特定毒素的效果，你需要稀有且難以取得的材料。`
+  },
+  { 
+    name_en: 'Scared', 
+    name_cn: '驚恐', 
+    icon: 'spade', 
+    checked: false,
+    description: `在街巷領域的所有擲骰承受 –1。你可能因直面極其可怕、突如其來或震撼的事物，或因陷入絕望處境而感到驚恐。
+要移除此狀態，花些時間與一位朋友坦誠交談，誠實回顧發生的事情以及它對你的影響。或者，你也可以正面面對恐懼，或在困難情境中證明你的意志力或勇氣。`
+  },
+  { 
+    name_en: 'Broken', 
+    name_cn: '崩潰', 
+    icon: '', 
+    checked: false,
+    description: `所有擲骰額外承受 –1。即使在休息或獲得一次片刻喘息後，你的壓力也始終至少為 8 點。當你已擁有 3 個狀態，卻本應承受第 4 個時，你會改為陷入崩潰。在你移除至少一個狀態之前，無法再承受其他狀態。
+要移除此狀態，你能夠以照護＋學識進行一次極端成功的擲骰，或前往醫院治療，費用為 4 枚金錢。`
+  }
 ])
 
 const decorumLevels = ref([
@@ -395,6 +460,46 @@ const currentDecorum = ref(3) // 默認為「樸素」
 
 const setDecorum = (level: number) => {
   currentDecorum.value = level
+}
+
+// Stress 等級 (0-11)
+const currentStress = ref(0)
+
+const setStressLevel = (level: number) => {
+  // 如果点击当前等级，则重置为 0
+  if (currentStress.value === level) {
+    currentStress.value = 0
+  } else {
+    currentStress.value = level
+  }
+}
+
+const getStressIcon = (index: number) => {
+  const isFilled = index <= currentStress.value
+  if (index === 8) {
+    // 第8格使用特殊图案
+    return isFilled ? '/assets/sheet/stress_special-filled.svg' : '/assets/sheet/stress_special.svg'
+  } else {
+    // 其他格子使用方形图案
+    return isFilled ? '/assets/sheet/square-small.png' : '/assets/sheet/square-small-red.png'
+  }
+}
+
+// Condition 切换
+const toggleCondition = (condition: any) => {
+  condition.checked = !condition.checked
+}
+
+const getConditionIcon = (condition: any) => {
+  // 尷尬、困惑、受傷、驚恐使用对应图标（filled/unfilled）
+  if (['Embarrassed', 'Confused', 'Hurt', 'Scared'].includes(condition.name_en)) {
+    return condition.checked 
+      ? `/assets/sheet/${condition.icon}-filled.svg` 
+      : `/assets/sheet/${condition.icon}.svg`
+  } else {
+    // 其他状态使用方框图案
+    return condition.checked ? '/assets/sheet/square-small.png' : '/assets/sheet/square-small-red.png' 
+  }
 }
 </script>
 
@@ -511,6 +616,47 @@ input[type="radio"] {
 }
 
 .skill-tooltip-container:hover .skill-tooltip {
+  opacity: 1;
+}
+
+/* Condition Tooltip */
+.condition-tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.condition-tooltip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(90, 74, 58, 0.95);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  z-index: 20;
+  margin-left: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  min-width: 280px;
+  max-width: 400px;
+  white-space: normal;
+}
+
+.condition-tooltip::after {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+  border-right-color: rgba(90, 74, 58, 0.95);
+}
+
+.condition-tooltip-container:hover .condition-tooltip {
   opacity: 1;
 }
 </style>
