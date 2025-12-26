@@ -17,8 +17,21 @@ export default defineNuxtConfig({
     cdnURL: '/household/'
   },
 
+  router: {
+    options: {
+      hashMode: false
+    }
+  },
+
   // 確保靜態生成
   nitro: {
-    preset: 'static'
+    preset: 'static',
+    baseURL: '/household/'
+  },
+
+  runtimeConfig: {
+    app: {
+      baseURL: '/household/'
+    }
   }
 })
