@@ -13,7 +13,8 @@ export default defineNuxtConfig({
   ssr: false,
   app: {
     baseURL: process.env.NODE_ENV === 'production' ? '/household/' : '/',
-    buildAssetsDir: '/assets/'
+    buildAssetsDir: '/assets/',
+    cdnURL: process.env.NODE_ENV === 'production' ? 'https://sassttrpgtools.github.io/household/' : undefined
   },
 
   // 確保靜態生成
