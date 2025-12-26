@@ -46,12 +46,12 @@
             <div class="flex items-center gap-2 relative z-10 pl-7">
               <h2 class="text-xl text-[#5a4a3a]">{{ category.title }}</h2>
               <img v-for="i in 2" :key="i" 
-                   :src="i <= category.level ? `/assets/sheet/${category.icon}-filled.svg` : `/assets/sheet/${category.icon}.svg`" 
+                   :src="i <= category.level ? assetPath(`/assets/sheet/${category.icon}-filled.svg`) : assetPath(`/assets/sheet/${category.icon}.svg`)" 
                    class="w-6 cursor-pointer hover:scale-110 transition-transform" 
                    :alt="category.icon" 
                    @click="toggleCategoryLevel(category.id, i)" />
             </div>
-            <img src="/assets/sheet/deco2.svg" class="pb-2"/>
+            <img :src="assetPath('/assets/sheet/deco2.svg')" class="pb-2"/>
             <div v-for="skill in category.skills" :key="skill.name" class="flex items-center justify-between mb-1 text-sm relative z-10 pl-20">
               <div class="skill-tooltip-container relative">
                 <span class="text-[#5a4a3a] uppercase text-lg cursor-help pl-40">{{ skill.name_cn }}</span>
@@ -61,7 +61,7 @@
               </div>
               <div class="flex gap-1">
                 <img v-for="i in 4" :key="i" 
-                     :src="i <= skill.level ? `/assets/sheet/${category.icon}-filled.svg` : `/assets/sheet/${category.icon}.svg`" 
+                     :src="i <= skill.level ? assetPath(`/assets/sheet/${category.icon}-filled.svg`) : assetPath(`/assets/sheet/${category.icon}.svg`)" 
                      class="w-4 cursor-pointer hover:scale-110 transition-transform" 
                      alt="Level" 
                      @click="toggleSkillLevel(category.id, skill.name, i)" />
@@ -120,7 +120,7 @@
                 <img 
                   v-for="(ace, index) in store.aces" 
                   :key="index"
-                  :src="`/assets/sheet/${ace.icon}${ace.active ? '-filled' : ''}.svg`" 
+                  :src="assetPath(`/assets/sheet/${ace.icon}${ace.active ? '-filled' : ''}.svg`)" 
                   class="ace-card cursor-pointer transition-all duration-300 hover:scale-110"
                   :class="{ 'opacity-100': ace.active, 'opacity-60': !ace.active }"
                   :style="getAceCardStyle(index)"
@@ -136,7 +136,7 @@
             <div class="text-xl font-serif text-[#5a4a3a] text-center mb-2">
               特質              
             </div>
-            <img src="/assets/sheet/deco1.svg" class="pb-2"/>
+            <img :src="assetPath('/assets/sheet/deco1.svg')" class="pb-2"/>
             <div class="space-y-2">
               <textarea v-for="(trait, index) in store.traits" :key="index" 
                         v-model="store.traits[index]"
@@ -150,29 +150,29 @@
             <div class="text-xl font-serif text-[#5a4a3a] text-center mb-2">
               招式              
             </div>
-            <img src="/assets/sheet/deco1.svg" class="pb-2"/>
+            <img :src="assetPath('/assets/sheet/deco1.svg')" class="pb-2"/>
             <div class="space-y-2">
               <div v-for="(move, index) in store.moves" :key="index" class="border border-[#8b7355] rounded p-3 bg-white relative">
                 <textarea v-model="store.moves[index].text" class="w-full text-sm bg-transparent resize-none border-0 focus:outline-none mb-2" 
                           rows="5"></textarea>
                 <div class="flex justify-end gap-2 border-t border-[#8b7355] pt-2">
                   <img 
-                    :src="store.moves[index].suits.heart ? '/assets/sheet/heart-filled.svg' : '/assets/sheet/heart.svg'" 
+                    :src="store.moves[index].suits.heart ? assetPath('/assets/sheet/heart-filled.svg') : assetPath('/assets/sheet/heart.svg')" 
                     class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
                     alt="Heart" 
                     @click="store.toggleMoveSuit(index, 'heart')" />
                   <img 
-                    :src="store.moves[index].suits.diamond ? '/assets/sheet/diamond-filled.svg' : '/assets/sheet/diamond.svg'" 
+                    :src="store.moves[index].suits.diamond ? assetPath('/assets/sheet/diamond-filled.svg') : assetPath('/assets/sheet/diamond.svg')" 
                     class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
                     alt="Diamond" 
                     @click="store.toggleMoveSuit(index, 'diamond')" />
                   <img 
-                    :src="store.moves[index].suits.club ? '/assets/sheet/club-filled.svg' : '/assets/sheet/club.svg'" 
+                    :src="store.moves[index].suits.club ? assetPath('/assets/sheet/club-filled.svg') : assetPath('/assets/sheet/club.svg')" 
                     class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
                     alt="Club" 
                     @click="store.toggleMoveSuit(index, 'club')" />
                   <img 
-                    :src="store.moves[index].suits.spade ? '/assets/sheet/spade-filled.svg' : '/assets/sheet/spade.svg'" 
+                    :src="store.moves[index].suits.spade ? assetPath('/assets/sheet/spade-filled.svg') : assetPath('/assets/sheet/spade.svg')" 
                     class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
                     alt="Spade" 
                     @click="store.toggleMoveSuit(index, 'spade')" />
@@ -208,7 +208,7 @@
             <div class="text-xl font-serif text-[#5a4a3a] text-center mb-2">
               壓力
             </div>
-            <img src="/assets/sheet/deco1.svg" class="pb-2"/>
+            <img :src="assetPath('/assets/sheet/deco1.svg')" class="pb-2"/>
             <div class="flex justify-center gap-1 mb-2">
               <img v-for="i in 12" :key="i"
                    :src="getStressIcon(i)"
@@ -223,7 +223,7 @@
             <div class="text-xl font-serif text-[#5a4a3a] text-center mb-2">
               狀態
             </div>
-            <img src="/assets/sheet/deco1.svg" class="pb-2"/>
+            <img :src="assetPath('/assets/sheet/deco1.svg')" class="pb-2"/>
             <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <div v-for="condition in store.conditions" :key="condition.name_en" class="flex items-center justify-between">
                 <div class="condition-tooltip-container flex items-center gap-2 cursor-help">
@@ -246,7 +246,7 @@
             <div class="text-xl font-serif text-[#5a4a3a] text-center mb-2">
               契約
             </div>
-            <img src="/assets/sheet/deco1.svg" class="pb-2"/>
+            <img :src="assetPath('/assets/sheet/deco1.svg')" class="pb-2"/>
             <textarea v-model="store.contracts" class="w-full border border-[#8b7355] rounded px-3 py-1 text-sm bg-white resize-none" 
                       rows="19"></textarea>
           </div>
@@ -260,12 +260,12 @@
               <img 
                 v-for="i in 5" 
                 :key="i"
-                :src="store.currentTTT === i ? `/assets/sheet/ttt${i}-filled.svg` : `/assets/sheet/ttt${i}-filled-white.svg`"
+                :src="store.currentTTT === i ? assetPath(`/assets/sheet/ttt${i}-filled.svg`) : assetPath(`/assets/sheet/ttt${i}-filled-white.svg`)"
                 class="h-8 cursor-pointer hover:scale-110 transition-transform"
                 :alt="`TTT ${i}`"
                 @click="store.setTTT(i)" />
             </div>
-            <img src="/assets/sheet/deco1.svg" class="pb-2"/>
+            <img :src="assetPath('/assets/sheet/deco1.svg')" class="pb-2"/>
             <textarea 
               v-model="store.tttNotes"
               class="w-full border border-[#8b7355] rounded px-3 py-2 text-sm bg-white resize-none" 
@@ -308,7 +308,7 @@
             <div class="text-xl font-serif text-[#5a4a3a] text-center mb-2">
               回憶
             </div>
-            <img src="/assets/sheet/deco1.svg" class="pb-2"/>
+            <img :src="assetPath('/assets/sheet/deco1.svg')" class="pb-2"/>
             <div class="border border-[#8b7355] rounded-b p-3 bg-white space-y-1">
               <div v-for="(memory, index) in store.memories" :key="index" class="flex items-center gap-2">
                 <span class="text-xs text-[#8b7355]">{{ ['I', 'II', 'III', 'IV','', 'V', ''][index] }}</span>
@@ -322,7 +322,7 @@
             <div class="text-xl font-serif text-[#5a4a3a] text-center mb-2">
               經歷
             </div>
-            <img src="/assets/sheet/deco1.svg" class="pb-2"/>
+            <img :src="assetPath('/assets/sheet/deco1.svg')" class="pb-2"/>
             <textarea v-model="store.experiences" class="w-full border border-[#8b7355] rounded px-3 py-3 text-sm bg-white resize-none" 
                       rows="28"></textarea>
           </div>
@@ -343,7 +343,7 @@ import { onMounted, watch } from 'vue'
 
 const store = useCharacterStore()
 const fileInput = ref<HTMLInputElement | null>(null)
-
+const assetPath = useAssetPath
 // 客戶端掛載後載入持久化資料
 onMounted(() => {
   store.loadFromLocalStorage()
@@ -365,7 +365,7 @@ watch(() => [
 }, { deep: true })
 
 const backgroundStyle = computed(() => ({
-  backgroundImage: 'url(/assets/sheet/sheet_bg.webp)',
+  backgroundImage: `url(${assetPath('/assets/sheet/sheet_bg.webp')})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat'
@@ -400,7 +400,7 @@ const skillCategories = computed(() => [
     title: '社交',
     icon: 'heart',
     level: store.categoryLevels.society,
-    backgroundImage: '/assets/dice/face_3_alpha.png',
+    backgroundImage: assetPath('/assets/dice/face_3_alpha.png'),
     skills: store.societySkills
   },
   {
@@ -408,7 +408,7 @@ const skillCategories = computed(() => [
     title: '學識',
     icon: 'diamond',
     level: store.categoryLevels.academia,
-    backgroundImage: '/assets/dice/face_4_alpha.png',
+    backgroundImage: assetPath('/assets/dice/face_4_alpha.png'),
     skills: store.academiaSkills
   },
   {
@@ -416,7 +416,7 @@ const skillCategories = computed(() => [
     title: '戰事',
     icon: 'club',
     level: store.categoryLevels.war,
-    backgroundImage: '/assets/dice/face_5_alpha.png',
+    backgroundImage: assetPath('/assets/dice/face_5_alpha.png'),
     skills: store.warSkills
   },
   {
@@ -424,7 +424,7 @@ const skillCategories = computed(() => [
     title: '街巷',
     icon: 'spade',
     level: store.categoryLevels.street,
-    backgroundImage: '/assets/dice/face_6_alpha.png',
+    backgroundImage: assetPath('/assets/dice/face_6_alpha.png'),
     skills: store.streetSkills
   }
 ])
@@ -440,19 +440,19 @@ const decorumLevels = ref([
 const getStressIcon = (index: number) => {
   const isFilled = index <= store.currentStress
   if (index === 8) {
-    return isFilled ? '/assets/sheet/stress_special-filled.svg' : '/assets/sheet/stress_special.svg'
+    return isFilled ? assetPath('/assets/sheet/stress_special-filled.svg') : assetPath('/assets/sheet/stress_special.svg')
   } else {
-    return isFilled ? '/assets/sheet/square-small.png' : '/assets/sheet/square-small-red.png'
+    return isFilled ? assetPath('/assets/sheet/square-small.png') : assetPath('/assets/sheet/square-small-red.png')
   }
 }
 
 const getConditionIcon = (condition: any) => {
   if (['Embarrassed', 'Confused', 'Hurt', 'Scared'].includes(condition.name_en)) {
     return condition.checked 
-      ? `/assets/sheet/${condition.icon}-filled.svg` 
-      : `/assets/sheet/${condition.icon}.svg`
+      ? assetPath(`/assets/sheet/${condition.icon}-filled.svg`) 
+      : assetPath(`/assets/sheet/${condition.icon}.svg`)
   } else {
-    return condition.checked ? '/assets/sheet/square-small.png' : '/assets/sheet/square-small-red.png'
+    return condition.checked ? assetPath('/assets/sheet/square-small.png') : assetPath('/assets/sheet/square-small-red.png')
   }
 }
 
