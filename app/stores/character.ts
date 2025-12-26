@@ -89,7 +89,7 @@ export const useCharacterStore = defineStore('character', {
     coins: 0,
     
     // Traits
-    traits: ['', '', '', '', ''],
+    traits: ['', '', '', ''],
     
     // Character Info
     characterInfo: {
@@ -115,11 +115,25 @@ export const useCharacterStore = defineStore('character', {
   
   actions: {
     toggleAce(index: number) {
-      this.aces[index].active = !this.aces[index].active
+      const newAce = {
+        ...this.aces[index],
+        active: !this.aces[index].active
+      }
+      this.aces.splice(index, 1, newAce)
+      this.saveToLocalStorage()
     },
     
     toggleMoveSuit(moveIndex: number, suit: string) {
-      this.moves[moveIndex].suits[suit] = !this.moves[moveIndex].suits[suit]
+      const currentSuits = this.moves[moveIndex].suits
+      const newMove = {
+        ...this.moves[moveIndex],
+        suits: {
+          ...currentSuits,
+          [suit]: !currentSuits[suit as keyof typeof currentSuits]
+        }
+      }
+      this.moves.splice(moveIndex, 1, newMove)
+      this.saveToLocalStorage()
     },
     
     toggleCategoryLevel(categoryId: string, clickedIndex: number) {
@@ -129,27 +143,38 @@ export const useCharacterStore = defineStore('character', {
       } else {
         this.categoryLevels[categoryId] = clickedIndex
       }
+      this.saveToLocalStorage()
     },
     
     toggleSkillLevel(categoryId: string, skillName: string, clickedIndex: number) {
-      const targetSkills = 
-        categoryId === 'society' ? this.societySkills :
-        categoryId === 'academia' ? this.academiaSkills :
-        categoryId === 'war' ? this.warSkills :
-        this.streetSkills
+      let targetSkills
+      if (categoryId === 'society') {
+        targetSkills = this.societySkills
+      } else if (categoryId === 'academia') {
+        targetSkills = this.academiaSkills
+      } else if (categoryId === 'war') {
+        targetSkills = this.warSkills
+      } else {
+        targetSkills = this.streetSkills
+      }
       
-      const skill = targetSkills.find(s => s.name === skillName)
-      if (skill) {
-        if (clickedIndex === skill.level) {
-          skill.level = 1
-        } else {
-          skill.level = clickedIndex
+      const skillIndex = targetSkills.findIndex(s => s.name === skillName)
+      if (skillIndex !== -1) {
+        const currentLevel = targetSkills[skillIndex].level
+        const newLevel = clickedIndex === currentLevel ? 1 : clickedIndex
+        
+        const newSkill = {
+          ...targetSkills[skillIndex],
+          level: newLevel
         }
+        targetSkills.splice(skillIndex, 1, newSkill)
+        this.saveToLocalStorage()
       }
     },
     
     setDecorum(level: number) {
       this.currentDecorum = level
+      this.saveToLocalStorage()
     },
     
     setStressLevel(level: number) {
@@ -158,14 +183,24 @@ export const useCharacterStore = defineStore('character', {
       } else {
         this.currentStress = level
       }
+      this.saveToLocalStorage()
     },
     
     toggleCondition(condition: any) {
-      condition.checked = !condition.checked
+      const index = this.conditions.findIndex(c => c.name_en === condition.name_en)
+      if (index !== -1) {
+        const newCondition = {
+          ...this.conditions[index],
+          checked: !this.conditions[index].checked
+        }
+        this.conditions.splice(index, 1, newCondition)
+        this.saveToLocalStorage()
+      }
     },
     
     setTTT(level: number) {
       this.currentTTT = level
+      this.saveToLocalStorage()
     },
     
     exportData() {
@@ -214,11 +249,41 @@ export const useCharacterStore = defineStore('character', {
         console.error('Import failed:', error)
         return false
       }
+    },
+    
+    // 手動持久化方法
+    saveToLocalStorage() {
+      if (process.client) {
+        try {
+          const data = JSON.stringify(this.$state)
+          localStorage.setItem('household-character', data)
+        } catch (error) {
+          console.error('Failed to save to localStorage:', error)
+        }
+      }
+    },
+    
+    loadFromLocalStorage() {
+      if (process.client) {
+        try {
+          const data = localStorage.getItem('household-character')
+          if (data) {
+            const parsed = JSON.parse(data)
+            this.$patch(parsed)
+          }
+        } catch (error) {
+          console.error('Failed to load from localStorage:', error)
+        }
+      }
+    },
+    
+    clearAll() {
+      // 重置所有狀態為初始值
+      this.$reset()
+      // 清除 localStorage
+      if (process.client) {
+        localStorage.removeItem('household-character')
+      }
     }
-  },
-  
-  persist: {
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    key: 'household-character'
   }
 })

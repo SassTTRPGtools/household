@@ -1,7 +1,12 @@
 <template>
   <div class="character-sheet-container min-h-screen p-8" :style="backgroundStyle">
     <!-- 导入/导出按钮 -->
-    <div class="flex justify-end gap-3 mb-4">
+    <div class="flex justify-center gap-3 mb-4">
+      <button 
+        @click="handleClearAll"
+        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
+        🗑️ 清空全部
+      </button>
       <button 
         @click="handleImport"
         class="px-4 py-2 bg-[#8b7ba8] text-white rounded-lg hover:bg-[#7a6a98] transition-colors text-sm">
@@ -72,24 +77,24 @@
               <div class="flex items-center gap-3">
                 <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
                   <label class="flex items-center gap-1">
-                    <input type="radio" name="wealth" value="poor" class="w-3 h-3" />
+                    <input type="radio" name="wealth" value="poor" v-model="store.wealthLevel" class="w-3 h-3" />
                     <span class="text-[#5a4a3a]">貧困</span>
                   </label>
                   <label class="flex items-center gap-1">
-                    <input type="radio" name="wealth" value="well-off" class="w-3 h-3" />
+                    <input type="radio" name="wealth" value="well-off" v-model="store.wealthLevel" class="w-3 h-3" />
                     <span class="text-[#5a4a3a]">小康</span>
                   </label>
                   <label class="flex items-center gap-1">
-                    <input type="radio" name="wealth" value="middle" class="w-3 h-3" />
+                    <input type="radio" name="wealth" value="middle" v-model="store.wealthLevel" class="w-3 h-3" />
                     <span class="text-[#5a4a3a]">中產階級</span>
                   </label>
                   <label class="flex items-center gap-1">
-                    <input type="radio" name="wealth" value="rich" class="w-3 h-3" />
+                    <input type="radio" name="wealth" value="rich" v-model="store.wealthLevel" class="w-3 h-3" />
                     <span class="text-[#5a4a3a]">富有</span>
                   </label>
                 </div>
                 硬幣
-                <input type="number" min="0" class="w-12 h-8 rounded-full border-2 border-[#8b7355] bg-white text-center text-xs focus:outline-none focus:ring-1 focus:ring-[#8b7355]" placeholder="0" />
+                <input type="number" min="0" v-model="store.coins" class="w-12 h-8 rounded-full border-2 border-[#8b7355] bg-white text-center text-xs focus:outline-none focus:ring-1 focus:ring-[#8b7355]" placeholder="0" />
               </div>
             </div>
             
@@ -242,7 +247,7 @@
               契約
             </div>
             <img src="/assets/sheet/deco1.svg" class="pb-2"/>
-            <textarea class="w-full border border-[#8b7355] rounded py-1 text-sm bg-white resize-none" 
+            <textarea v-model="store.contracts" class="w-full border border-[#8b7355] rounded px-3 py-1 text-sm bg-white resize-none" 
                       rows="19"></textarea>
           </div>
 
@@ -334,9 +339,30 @@
 
 <script setup lang="ts">
 import { useCharacterStore } from '~/stores/character'
+import { onMounted, watch } from 'vue'
 
 const store = useCharacterStore()
 const fileInput = ref<HTMLInputElement | null>(null)
+
+// 客戶端掛載後載入持久化資料
+onMounted(() => {
+  store.loadFromLocalStorage()
+})
+
+// 監聽所有直接綁定的響應式屬性，自動保存
+watch(() => [
+  store.wealthLevel,
+  store.coins,
+  store.equipmentText,
+  store.traits,
+  store.contracts,
+  store.tttNotes,
+  store.experiences,
+  store.memories,
+  store.characterInfo
+], () => {
+  store.saveToLocalStorage()
+}, { deep: true })
 
 const backgroundStyle = computed(() => ({
   backgroundImage: 'url(/assets/sheet/sheet_bg.webp)',
@@ -432,6 +458,13 @@ const getConditionIcon = (condition: any) => {
 
 const handleImport = () => {
   fileInput.value?.click()
+}
+
+const handleClearAll = () => {
+  if (confirm('⚠️ 確定要清空所有資料嗎？此操作無法復原！')) {
+    store.clearAll()
+    alert('✅ 已清空所有資料')
+  }
 }
 
 const onFileSelected = (event: Event) => {
