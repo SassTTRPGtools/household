@@ -4,8 +4,20 @@ export default defineNuxtConfig({
   modules: ['@nuxt/ui', '@pinia/nuxt'],
   css: ['~/assets/css/main.css'],
   devtools: { enabled: true },
-  
+
   pinia: {
     storesDirs: ['./stores/**']
+  },
+
+  // GitHub Pages 部署配置
+  ssr: false,
+  app: {
+    baseURL: process.env.NODE_ENV === 'production' ? '/household/' : '/',
+    buildAssetsDir: '/assets/'
+  },
+
+  // 確保靜態生成
+  nitro: {
+    preset: 'static'
   }
 })
