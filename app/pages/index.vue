@@ -192,7 +192,7 @@
             </div>
             <div class="flex justify-center gap-2 mb-4">
               <div v-for="(level, index) in decorumLevels" :key="index" class="decorum-tooltip-container pl-5">
-                <img :src="store.currentDecorum === index + 1 ? '/assets/sheet/butterfly-filled.svg' : '/assets/sheet/butterfly.svg'" 
+                <img :src="store.currentDecorum === index + 1 ? assetPath('/assets/sheet/butterfly-filled.svg') : assetPath('/assets/sheet/butterfly.svg')" 
                      class="w-8 h-8 cursor-pointer hover:scale-110 transition-transform" 
                      @click="store.setDecorum(index + 1)" />
                      {{ level.name_cn }}
