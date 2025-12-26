@@ -12,9 +12,9 @@ export default defineNuxtConfig({
   // GitHub Pages 部署配置
   ssr: false,
   app: {
-    baseURL: process.env.NODE_ENV === 'production' ? '/household/' : '/',
-    buildAssetsDir: '/assets/',
-    cdnURL: process.env.NODE_ENV === 'production' ? 'https://sassttrpgtools.github.io/household/' : undefined
+    baseURL: '/household/',
+    buildAssetsDir: '/_nuxt/',
+    cdnURL: '/household/'
   },
 
   // 確保靜態生成
