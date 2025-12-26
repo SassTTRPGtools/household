@@ -12,8 +12,8 @@ export default defineNuxtConfig({
   // GitHub Pages 部署配置
   ssr: false,
   app: {
-    baseURL: '/household/',
-    buildAssetsDir: '_nuxt/'
+    baseURL: '/',
+    buildAssetsDir: '/_nuxt/'
   },
 
   router: {
@@ -24,7 +24,7 @@ export default defineNuxtConfig({
 
   // 靜態生成設定
   nitro: {
-    preset: 'github-pages',
+    preset: 'static',
     prerender: {
       routes: ['/'],
       crawlLinks: true,
