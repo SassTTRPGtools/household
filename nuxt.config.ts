@@ -13,8 +13,7 @@ export default defineNuxtConfig({
   ssr: false,
   app: {
     baseURL: '/household/',
-    buildAssetsDir: '/_nuxt/',
-    cdnURL: '/household/'
+    buildAssetsDir: '_nuxt/'
   },
 
   router: {
@@ -23,15 +22,14 @@ export default defineNuxtConfig({
     }
   },
 
-  // 確保靜態生成
+  // 靜態生成設定
   nitro: {
-    preset: 'static',
-    baseURL: '/household/'
-  },
-
-  runtimeConfig: {
-    app: {
-      baseURL: '/household/'
+    preset: 'github-pages',
+    prerender: {
+      routes: ['/'],
+      crawlLinks: true,
+      failOnError: false
     }
-  }
+  },
+  
 })
