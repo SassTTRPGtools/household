@@ -12,7 +12,7 @@ export default defineNuxtConfig({
   // GitHub Pages 部署配置
   ssr: false,
   app: {
-    baseURL: '/',
+    baseURL: '/household/',
     buildAssetsDir: '/_nuxt/'
   },
 
@@ -29,7 +29,14 @@ export default defineNuxtConfig({
       routes: ['/'],
       crawlLinks: true,
       failOnError: false
-    }
+    },
+    publicAssets: [
+      {
+        baseURL: '/household/',
+        dir: 'public',
+        maxAge: 60 * 60 * 24 * 365 // 1 year
+      }
+    ]
   },
   
 })
