@@ -4,13 +4,13 @@ export default defineNuxtConfig({
   modules: ['@nuxt/ui', '@pinia/nuxt'],
   css: ['~/assets/css/main.css'],
   devtools: { enabled: true },
+  srcDir: 'app/',
 
   pinia: {
     storesDirs: ['./stores/**']
   },
 
   // GitHub Pages 部署配置
-  ssr: false,
   app: {
     baseURL: '/household/',
     buildAssetsDir: '/_nuxt/'
@@ -24,19 +24,15 @@ export default defineNuxtConfig({
 
   // 靜態生成設定
   nitro: {
-    preset: 'static',
+    preset: 'github-pages',
     prerender: {
       routes: ['/'],
       crawlLinks: true,
       failOnError: false
-    },
-    publicAssets: [
-      {
-        baseURL: '/household/',
-        dir: 'public',
-        maxAge: 60 * 60 * 24 * 365 // 1 year
-      }
-    ]
+    }
   },
+  
+  // 確保 SPA 模式用於 GitHub Pages
+  ssr: false,
   
 })
