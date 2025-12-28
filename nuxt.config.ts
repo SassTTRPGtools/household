@@ -13,7 +13,13 @@ export default defineNuxtConfig({
   // GitHub Pages 部署配置
   app: {
     baseURL: '/household/',
-    buildAssetsDir: '/_nuxt/'
+    buildAssetsDir: '/_nuxt/',
+    head: {
+      title: '家宅奇譚',
+      link: [
+        { rel: 'icon', type: 'image/png', href: '/household/assets/official/logo.png' }
+      ]
+    }
   },
 
   router: {
