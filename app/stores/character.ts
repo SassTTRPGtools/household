@@ -13,9 +13,9 @@ export const useCharacterStore = defineStore('character', {
     
     // Moves
     moves: [
-      { text: '', suits: { heart: false, diamond: false, club: false, spade: false } },
-      { text: '', suits: { heart: false, diamond: false, club: false, spade: false } },
-      { text: '', suits: { heart: false, diamond: false, club: false, spade: false } }
+      { text: '', suits: { heart: false, diamond: false, club: false, spade: false }, used: false },
+      { text: '', suits: { heart: false, diamond: false, club: false, spade: false }, used: false },
+      { text: '', suits: { heart: false, diamond: false, club: false, spade: false }, used: false }
     ],
     
     // Category Levels
@@ -131,6 +131,15 @@ export const useCharacterStore = defineStore('character', {
           ...currentSuits,
           [suit]: !currentSuits[suit as keyof typeof currentSuits]
         }
+      }
+      this.moves.splice(moveIndex, 1, newMove)
+      this.saveToLocalStorage()
+    },
+    
+    toggleMoveUsed(moveIndex: number) {
+      const newMove = {
+        ...this.moves[moveIndex],
+        used: !this.moves[moveIndex].used
       }
       this.moves.splice(moveIndex, 1, newMove)
       this.saveToLocalStorage()

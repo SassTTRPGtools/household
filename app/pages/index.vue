@@ -70,12 +70,18 @@
           </div>
 
           <!-- Equipment & Wealth -->
-          <div class="skill-section border border-[#8b7355] rounded overflow-hidden">
+          <div class="skill-section border border-[#8b7355] rounded" style="overflow: visible;">
             <!-- 标题栏 -->
-            <div class="bg-[#f9f6f0] border-b border-[#8b7355] px-3 py-2 flex items-center justify-between">
-              <h2 class="text-base font-serif text-[#5a4a3a]">裝備 & 財富</h2>
-              <div class="flex items-center gap-3">
-                <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+            <div class="bg-[#f9f6f0] border-b border-[#8b7355] px-3 py-2">
+              <div class="flex items-center justify-between mb-2">
+                <h2 class="text-base font-serif text-[#5a4a3a]">裝備 & 財富</h2>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-[#5a4a3a]">硬幣</span>
+                  <input type="number" min="0" v-model="store.coins" class="w-12 h-7 rounded-full border-2 border-[#8b7355] bg-white text-center text-xs focus:outline-none focus:ring-1 focus:ring-[#8b7355]" placeholder="0" />
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="grid grid-cols-4 gap-x-2 gap-y-1 text-xs">
                   <label class="flex items-center gap-1">
                     <input type="radio" name="wealth" value="poor" v-model="store.wealthLevel" class="w-3 h-3" />
                     <span class="text-[#5a4a3a]">貧困</span>
@@ -86,25 +92,60 @@
                   </label>
                   <label class="flex items-center gap-1">
                     <input type="radio" name="wealth" value="middle" v-model="store.wealthLevel" class="w-3 h-3" />
-                    <span class="text-[#5a4a3a]">中產階級</span>
+                    <span class="text-[#5a4a3a]">中產</span>
                   </label>
                   <label class="flex items-center gap-1">
                     <input type="radio" name="wealth" value="rich" v-model="store.wealthLevel" class="w-3 h-3" />
                     <span class="text-[#5a4a3a]">富有</span>
                   </label>
                 </div>
-                硬幣
-                <input type="number" min="0" v-model="store.coins" class="w-12 h-8 rounded-full border-2 border-[#8b7355] bg-white text-center text-xs focus:outline-none focus:ring-1 focus:ring-[#8b7355]" placeholder="0" />
               </div>
             </div>
             
             <!-- 内容区域 -->
-            <div class="bg-[#e8e3db] p-2">
+            <div class="bg-[#e8e3db] p-2 relative">
+              <!-- 編輯/預覽切換按鈕 -->
+              <button 
+                @click="equipmentEditMode = !equipmentEditMode"
+                class="absolute top-2 right-2 text-xs px-2 py-1 rounded bg-[#8b7ba8] text-white hover:bg-[#7a6a98] transition-colors z-10 shadow-sm">
+                {{ equipmentEditMode ? '預覽' : '編輯' }}
+              </button>
+              
+              <!-- 編輯模式 -->
               <textarea 
+                v-if="equipmentEditMode"
                 v-model="store.equipmentText"
-                class="w-full bg-transparent text-xs px-2 py-1 focus:outline-none resize-none font-mono leading-relaxed equipment-textarea" 
+                class="w-full bg-transparent text-xs px-2 py-1 pr-16 focus:outline-none resize-none font-mono leading-relaxed equipment-textarea border-0" 
                 rows="15"
-                placeholder="輸入裝備，每行一項..."></textarea>
+                placeholder="輸入裝備，例如：&#10;鑰匙｜價格 2&#10;特性：沉重&#10;單手武器，鑰齒由堅硬金屬製成。"></textarea>
+              
+              <!-- 預覽模式 -->
+              <div v-else class="space-y-1 min-h-[300px] pr-14">
+                <div 
+                  v-for="(item, index) in parsedEquipment" 
+                  :key="index"
+                  @click="copyToClipboard(item)"
+                  class="text-xs px-2 py-1 hover:bg-[#d8d3cb] rounded cursor-pointer transition-colors"
+                  :title="'點擊複製'">
+                  <span class="font-semibold text-[#5a4a3a]">{{ item.name }}</span>
+                  <template v-if="item.traits.length > 0">
+                    <span class="text-[#8b7355]">，</span>
+                    <span 
+                      v-for="(trait, tIndex) in item.traits" 
+                      :key="tIndex"
+                      class="weapon-trait-container">
+                      <span class="text-[#8b7355]">{{ trait }}</span>
+                      <div class="weapon-trait-tooltip">
+                        {{ getWeaponTraitDescription(trait) }}
+                      </div>
+                      <span v-if="tIndex < item.traits.length - 1" class="text-[#8b7355]">、</span>
+                    </span>
+                  </template>
+                </div>
+                <div v-if="parsedEquipment.length === 0" class="text-xs text-[#8b7355] px-2 py-4 text-center opacity-50">
+                  點擊「編輯」按鈕輸入裝備
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -152,30 +193,46 @@
             </div>
             <img :src="assetPath('/assets/sheet/deco1.svg')" class="pb-2"/>
             <div class="space-y-2">
-              <div v-for="(move, index) in store.moves" :key="index" class="border border-[#8b7355] rounded p-3 bg-white relative">
-                <textarea v-model="store.moves[index].text" class="w-full text-sm bg-transparent resize-none border-0 focus:outline-none mb-2" 
-                          rows="5"></textarea>
-                <div class="flex justify-end gap-2 border-t border-[#8b7355] pt-2">
-                  <img 
-                    :src="store.moves[index].suits.heart ? assetPath('/assets/sheet/heart-filled.svg') : assetPath('/assets/sheet/heart.svg')" 
-                    class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
-                    alt="Heart" 
-                    @click="store.toggleMoveSuit(index, 'heart')" />
-                  <img 
-                    :src="store.moves[index].suits.diamond ? assetPath('/assets/sheet/diamond-filled.svg') : assetPath('/assets/sheet/diamond.svg')" 
-                    class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
-                    alt="Diamond" 
-                    @click="store.toggleMoveSuit(index, 'diamond')" />
-                  <img 
-                    :src="store.moves[index].suits.club ? assetPath('/assets/sheet/club-filled.svg') : assetPath('/assets/sheet/club.svg')" 
-                    class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
-                    alt="Club" 
-                    @click="store.toggleMoveSuit(index, 'club')" />
-                  <img 
-                    :src="store.moves[index].suits.spade ? assetPath('/assets/sheet/spade-filled.svg') : assetPath('/assets/sheet/spade.svg')" 
-                    class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
-                    alt="Spade" 
-                    @click="store.toggleMoveSuit(index, 'spade')" />
+              <div v-for="(move, index) in store.moves" :key="index" class="border border-[#8b7355] rounded overflow-hidden bg-white relative">
+                <div class="flex">
+                  <!-- 使用狀態按鈕 -->
+                  <button 
+                    @click="store.toggleMoveUsed(index)"
+                    class="w-8 flex-shrink-0 flex items-center justify-center transition-colors"
+                    :class="move.used ? 'bg-gray-400 hover:bg-gray-500' : 'bg-green-500 hover:bg-green-600'"
+                    :title="move.used ? '已使用' : '未使用'">
+                  </button>
+                  
+                  <!-- 招式內容區 -->
+                  <div class="flex-1 p-3 transition-colors" :class="move.used ? 'bg-gray-200' : 'bg-white'">
+                    <textarea 
+                      v-model="store.moves[index].text" 
+                      class="w-full text-sm resize-none border-0 focus:outline-none mb-2 transition-colors" 
+                      :class="move.used ? 'bg-gray-200 text-gray-600' : 'bg-transparent'"
+                      rows="5"></textarea>
+                    <div class="flex justify-end gap-2 border-t border-[#8b7355] pt-2">
+                      <img 
+                        :src="store.moves[index].suits.heart ? assetPath('/assets/sheet/heart-filled.svg') : assetPath('/assets/sheet/heart.svg')" 
+                        class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
+                        alt="Heart" 
+                        @click="store.toggleMoveSuit(index, 'heart')" />
+                      <img 
+                        :src="store.moves[index].suits.diamond ? assetPath('/assets/sheet/diamond-filled.svg') : assetPath('/assets/sheet/diamond.svg')" 
+                        class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
+                        alt="Diamond" 
+                        @click="store.toggleMoveSuit(index, 'diamond')" />
+                      <img 
+                        :src="store.moves[index].suits.club ? assetPath('/assets/sheet/club-filled.svg') : assetPath('/assets/sheet/club.svg')" 
+                        class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
+                        alt="Club" 
+                        @click="store.toggleMoveSuit(index, 'club')" />
+                      <img 
+                        :src="store.moves[index].suits.spade ? assetPath('/assets/sheet/spade-filled.svg') : assetPath('/assets/sheet/spade.svg')" 
+                        class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" 
+                        alt="Spade" 
+                        @click="store.toggleMoveSuit(index, 'spade')" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -344,6 +401,108 @@ import { onMounted, watch } from 'vue'
 const store = useCharacterStore()
 const fileInput = ref<HTMLInputElement | null>(null)
 const assetPath = useAssetPath
+const equipmentEditMode = ref(false)
+
+// 武器特性說明
+const weaponTraits = {
+  '精準': '在長距離射擊時不承受任何劣勢。',
+  '雙管': '在重新裝填前可射擊兩次。相關背景見第八節〈史詩〉中的歷史事件。',
+  '決鬥': '允許你使用部分決鬥者招式。',
+  '火器': '允許你射擊。極度吵雜。每次射擊後必須重新裝填。',
+  '沉重': '有助於破壞物品、牆面與門扉。',
+  '非法': '持有或使用時，可能引發法律上的麻煩。',
+  '尖銳': '有助於刺穿堅硬表面，亦可作為槓桿使用。',
+  '遠程': '允許你射擊。每次射擊後必須重新裝填。',
+  '觸及': '允許你在短距離外進行攻擊。',
+  '鋒利': '有助於切斷繩索、霉菌、蘑菇或其他障礙物。',
+  '小型': '易於藏匿。',
+  '投擲': '可在短距離內投擲作為攻擊。',
+  '雙手': '需要雙手才能正確使用；在狹窄空間中會受到阻礙。',
+  '寬幅': '使你獲得部分掩蔽的效果，對抗遠程攻擊的反應骰 +1，但行動時承受 −1。'
+}
+
+// 解析裝備文字
+const parsedEquipment = computed(() => {
+  if (!store.equipmentText) return []
+  
+  const items: Array<{ name: string, traits: string[], fullText: string }> = []
+  const lines = store.equipmentText.split('\n')
+  let currentItem: { name: string, traits: string[], fullText: string } | null = null
+  
+  for (const line of lines) {
+    const trimmedLine = line.trim()
+    if (!trimmedLine) continue
+    
+    // 檢查是否為新物品（包含｜或價格）
+    if (trimmedLine.includes('｜') || trimmedLine.includes('價格')) {
+      // 保存前一個物品
+      if (currentItem) {
+        items.push(currentItem)
+      }
+      
+      // 解析名稱
+      const namePart = trimmedLine.split('｜')[0].trim()
+      currentItem = {
+        name: namePart,
+        traits: [],
+        fullText: trimmedLine
+      }
+    } else if (currentItem && (trimmedLine.startsWith('特性：') || trimmedLine.startsWith('特性:'))) {
+      // 解析特性
+      const traitsText = trimmedLine.replace(/^特性[：:]/g, '').trim()
+      if (traitsText && traitsText !== '—') {
+        currentItem.traits = traitsText.split(/[、,，]/).map(t => t.trim()).filter(t => t)
+      }
+      currentItem.fullText += '\n' + trimmedLine
+    } else if (currentItem) {
+      currentItem.fullText += '\n' + trimmedLine
+    }
+  }
+  
+  // 保存最後一個物品
+  if (currentItem) {
+    items.push(currentItem)
+  }
+  
+  return items
+})
+
+// 獲取武器特性說明
+const getWeaponTraitDescription = (trait: string): string => {
+  return weaponTraits[trait as keyof typeof weaponTraits] || '無說明'
+}
+
+// 複製到剪貼板
+const toast = useToast()
+const copyToClipboard = async (item: { name: string, traits: string[], fullText: string }) => {
+  try {
+    // 組合完整內容：原始文本 + 特性說明
+    let textToCopy = item.fullText
+    
+    if (item.traits.length > 0) {
+      textToCopy += '\n\n【特性說明】\n'
+      item.traits.forEach(trait => {
+        const description = getWeaponTraitDescription(trait)
+        textToCopy += `${trait}：${description}\n`
+      })
+    }
+    
+    await navigator.clipboard.writeText(textToCopy)
+    toast.add({
+      title: '已複製到剪貼板',
+      icon: 'i-heroicons-check-circle',
+      color: 'green'
+    })
+  } catch (err) {
+    console.error('複製失敗:', err)
+    toast.add({
+      title: '複製失敗',
+      description: '請稍後再試',
+      icon: 'i-heroicons-x-circle',
+      color: 'red'
+    })
+  }
+}
 // 客戶端掛載後載入持久化資料
 onMounted(() => {
   store.loadFromLocalStorage()
@@ -654,6 +813,47 @@ input[type="radio"] {
 }
 
 .condition-tooltip-container:hover .condition-tooltip {
+  opacity: 1;
+}
+
+/* Weapon Trait Tooltip */
+.weapon-trait-container {
+  position: relative;
+  display: inline-block;
+}
+
+.weapon-trait-tooltip {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(90, 74, 58, 0.95);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  min-width: 180px;
+  max-width: 280px;
+  white-space: normal;
+  text-align: left;
+}
+
+.weapon-trait-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(90, 74, 58, 0.95);
+}
+
+.weapon-trait-container:hover .weapon-trait-tooltip {
   opacity: 1;
 }
 
