@@ -43,26 +43,26 @@
               backgroundPosition: 'left center',
               backgroundRepeat: 'no-repeat'
             }">
-            <div class="flex items-center gap-2 relative z-10 pl-7">
-              <h2 class="text-xl text-[#5a4a3a]">{{ category.title }}</h2>
+            <div class="flex items-center gap-2 relative z-10 pl-6 md:pl-7">
+              <h2 class="text-lg md:text-xl text-[#5a4a3a] whitespace-nowrap">{{ category.title }}</h2>
               <img v-for="i in 2" :key="i" 
                    :src="i <= category.level ? assetPath(`/assets/sheet/${category.icon}-filled.svg`) : assetPath(`/assets/sheet/${category.icon}.svg`)" 
-                   class="w-6 cursor-pointer hover:scale-110 transition-transform" 
+                   class="w-5 md:w-6 cursor-pointer hover:scale-110 transition-transform flex-shrink-0" 
                    :alt="category.icon" 
                    @click="toggleCategoryLevel(category.id, i)" />
             </div>
             <img :src="assetPath('/assets/sheet/deco2.svg')" class="pb-2"/>
-            <div v-for="skill in category.skills" :key="skill.name" class="flex items-center justify-between mb-1 text-sm relative z-10 pl-20">
-              <div class="skill-tooltip-container relative">
-                <span class="text-[#5a4a3a] uppercase text-lg cursor-help pl-40">{{ skill.name_cn }}</span>
+            <div v-for="skill in category.skills" :key="skill.name" class="flex items-center justify-between gap-2 mb-1 text-sm relative z-10">
+              <div class="skill-tooltip-container relative flex-1 min-w-0 pl-16 md:pl-20">
+                <span class="text-[#5a4a3a] uppercase text-base md:text-lg cursor-help whitespace-nowrap overflow-hidden text-ellipsis block">{{ skill.name_cn }}</span>
                 <div class="skill-tooltip">
                   <div class="text-xs">{{ skill.description }}</div>
                 </div>
               </div>
-              <div class="flex gap-1">
+              <div class="flex gap-1 flex-shrink-0 pr-1">
                 <img v-for="i in 4" :key="i" 
                      :src="i <= skill.level ? assetPath(`/assets/sheet/${category.icon}-filled.svg`) : assetPath(`/assets/sheet/${category.icon}.svg`)" 
-                     class="w-4 cursor-pointer hover:scale-110 transition-transform" 
+                     class="w-3.5 md:w-4 cursor-pointer hover:scale-110 transition-transform" 
                      alt="Level" 
                      @click="toggleSkillLevel(category.id, skill.name, i)" />
               </div>
@@ -742,7 +742,7 @@ input[type="radio"] {
 
 .skill-tooltip {
   position: absolute;
-  right: 20%;
+  left: 100%;
   top: 50%;
   transform: translateY(-50%);
   background-color: rgba(90, 74, 58, 0.95);
@@ -754,7 +754,7 @@ input[type="radio"] {
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
   z-index: 20;
-  margin-right: 8px;
+  margin-left: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   min-width: 200px;
   max-width: 350px;
@@ -764,11 +764,11 @@ input[type="radio"] {
 .skill-tooltip::after {
   content: '';
   position: absolute;
-  left: 100%;
+  right: 100%;
   top: 50%;
   transform: translateY(-50%);
   border: 6px solid transparent;
-  border-left-color: rgba(90, 74, 58, 0.95);
+  border-right-color: rgba(90, 74, 58, 0.95);
 }
 
 .skill-tooltip-container:hover .skill-tooltip {
