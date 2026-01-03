@@ -71,7 +71,9 @@ export const useCharacterStore = defineStore('character', {
       { name_en: 'Hurt', name_cn: '受傷', icon: 'club', checked: false, description: '在戰事領域的所有擲骰承受 –1。當你遭受嚴重傷勢、被敵人重擊，或自高處墜落時，便可能受傷。\n要移除此狀態，進行一次照護＋學識的關鍵成功擲骰。或者，若你身在城鎮，也可以前往醫師處，以 2 枚金錢治療傷勢。' },
       { name_en: 'Poisoned', name_cn: '中毒', icon: '', checked: false, description: '在每個回合開始時，敘述者擲一顆數字骰。若結果為偶數：你承受 1 點壓力。若你已處於壓力滿載，並因本狀態承受額外壓力，你會陷入崩潰，但不會退場。\n當你接觸到有毒物質，或被討厭的野獸所傷時，便可能中毒。\n要移除此狀態，你可以以探索＋學識進行一次關鍵成功的擲骰來製作解毒劑，或以3 枚金錢購買一份。偶爾，敘述者也可能裁定：為了移除某種特定毒素的效果，你需要稀有且難以取得的材料。' },
       { name_en: 'Scared', name_cn: '驚恐', icon: 'spade', checked: false, description: '在街巷領域的所有擲骰承受 –1。你可能因直面極其可怕、突如其來或震撼的事物，或因陷入絕望處境而感到驚恐。\n要移除此狀態，花些時間與一位朋友坦誠交談，誠實回顧發生的事情以及它對你的影響。或者，你也可以正面面對恐懼，或在困難情境中證明你的意志力或勇氣。' },
-      { name_en: 'Broken', name_cn: '崩潰', icon: '', checked: false, description: '所有擲骰額外承受 –1。即使在休息或獲得一次片刻喘息後，你的壓力也始終至少為 8 點。當你已擁有 3 個狀態，卻本應承受第 4 個時，你會改為陷入崩潰。在你移除至少一個狀態之前，無法再承受其他狀態。\n要移除此狀態，你能夠以照護＋學識進行一次極端成功的擲骰，或前往醫院治療，費用為 4 枚金錢。' }
+      { name_en: 'Broken', name_cn: '崩潰', icon: '', checked: false, description: '所有擲骰額外承受 –1。即使在休息或獲得一次片刻喘息後，你的壓力也始終至少為 8 點。當你已擁有 3 個狀態，卻本應承受第 4 個時，你會改為陷入崩潰。在你移除至少一個狀態之前，無法再承受其他狀態。\n要移除此狀態，你能夠以照護＋學識進行一次極端成功的擲骰，或前往醫院治療，費用為 4 枚金錢。' },
+      { name_en: '', name_cn: '', icon: 'text', checked: false, description: '' },
+      { name_en: '', name_cn: '', icon: 'text', checked: false, description: '' }
     ],
     
     // Decorum
@@ -196,11 +198,36 @@ export const useCharacterStore = defineStore('character', {
     },
     
     toggleCondition(condition: any) {
-      const index = this.conditions.findIndex(c => c.name_en === condition.name_en)
-      if (index !== -1) {
+      // 如果有 name_en，使用原有邏輯
+      if (condition.name_en) {
+        const index = this.conditions.findIndex(c => c.name_en === condition.name_en)
+        if (index !== -1) {
+          const newCondition = {
+            ...this.conditions[index],
+            checked: !this.conditions[index].checked
+          }
+          this.conditions.splice(index, 1, newCondition)
+          this.saveToLocalStorage()
+        }
+      } else {
+        // 對於 text 類型，直接使用陣列中的位置
+        const index = this.conditions.indexOf(condition)
+        if (index !== -1) {
+          const newCondition = {
+            ...this.conditions[index],
+            checked: !this.conditions[index].checked
+          }
+          this.conditions.splice(index, 1, newCondition)
+          this.saveToLocalStorage()
+        }
+      }
+    },
+    
+    updateConditionName(index: number, newName: string) {
+      if (index >= 0 && index < this.conditions.length) {
         const newCondition = {
           ...this.conditions[index],
-          checked: !this.conditions[index].checked
+          name_cn: newName
         }
         this.conditions.splice(index, 1, newCondition)
         this.saveToLocalStorage()
@@ -253,10 +280,39 @@ export const useCharacterStore = defineStore('character', {
             this[key] = jsonData[key]
           }
         })
+        // 檢查並補齊自訂狀態
+        this.ensureCustomConditions()
         return true
       } catch (error) {
         console.error('Import failed:', error)
         return false
+      }
+    },
+    
+    // 確保自訂狀態存在
+    ensureCustomConditions() {
+      // 檢查是否有足夠的 conditions (應該有 10 個)
+      const expectedLength = 10
+      if (this.conditions.length < expectedLength) {
+        // 計算需要補充的數量
+        const missingCount = expectedLength - this.conditions.length
+        for (let i = 0; i < missingCount; i++) {
+          this.conditions.push({
+            name_en: '',
+            name_cn: '',
+            icon: 'text',
+            checked: false,
+            description: ''
+          })
+        }
+      }
+      // 如果沒有任何 icon='text' 的狀態，在最後添加兩個
+      const hasTextConditions = this.conditions.some(c => c.icon === 'text')
+      if (!hasTextConditions) {
+        this.conditions.push(
+          { name_en: '', name_cn: '', icon: 'text', checked: false, description: '' },
+          { name_en: '', name_cn: '', icon: 'text', checked: false, description: '' }
+        )
       }
     },
     
@@ -279,6 +335,8 @@ export const useCharacterStore = defineStore('character', {
           if (data) {
             const parsed = JSON.parse(data)
             this.$patch(parsed)
+            // 檢查並補齊自訂狀態
+            this.ensureCustomConditions()
           }
         } catch (error) {
           console.error('Failed to load from localStorage:', error)

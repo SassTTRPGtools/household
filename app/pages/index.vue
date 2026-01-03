@@ -282,18 +282,35 @@
             </div>
             <img :src="assetPath('/assets/sheet/deco1.svg')" class="pb-2"/>
             <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-              <div v-for="condition in store.conditions" :key="condition.name_en" class="flex items-center justify-between">
-                <div class="condition-tooltip-container flex items-center gap-2 cursor-help">
-                  <span class="text-[#5a4a3a] uppercase text-x">{{ condition.name_cn }}</span>
-                  <div class="condition-tooltip">
-                    <div class="text-xs whitespace-pre-line">{{ condition.description }}</div>
+              <div v-for="(condition, index) in store.conditions" :key="index" class="flex items-center justify-between">
+                <!-- 如果是 text 類型，顯示輸入框 -->
+                <template v-if="condition.icon === 'text'">
+                  <input 
+                    type="text" 
+                    :value="condition.name_cn"
+                    @input="updateConditionName(index, ($event.target as HTMLInputElement).value)"
+                    class="flex-1 border border-[#8b7355] rounded px-2 py-0.5 text-xs bg-white mr-2 w-4"
+                    placeholder="自訂狀態" />
+                  <img 
+                    :src="condition.checked ? assetPath('/assets/sheet/square-small.png') : assetPath('/assets/sheet/square-small-red.png')"
+                    class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform"
+                    :alt="'custom-condition'"
+                    @click="store.toggleCondition(condition)" />
+                </template>
+                <!-- 否則顯示原本的固定狀態 -->
+                <template v-else>
+                  <div class="condition-tooltip-container flex items-center gap-2 cursor-help">
+                    <span class="text-[#5a4a3a] uppercase text-x">{{ condition.name_cn }}</span>
+                    <div class="condition-tooltip">
+                      <div class="text-xs whitespace-pre-line">{{ condition.description }}</div>
+                    </div>
                   </div>
-                </div>
-                <img 
-                  :src="getConditionIcon(condition)"
-                  class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform"
-                  :alt="condition.name_en"
-                  @click="store.toggleCondition(condition)" />
+                  <img 
+                    :src="getConditionIcon(condition)"
+                    class="w-4 h-4 cursor-pointer hover:scale-110 transition-transform"
+                    :alt="condition.name_en"
+                    @click="store.toggleCondition(condition)" />
+                </template>
               </div>
             </div>
           </div>
@@ -342,7 +359,7 @@
                 <input type="text" v-model="store.characterInfo.name" class="w-full bg-white/20 border border-white/30 rounded px-2 py-1 text-sm" />
               </div>
               <div>
-                <label class="text-xs uppercase tracking-wide opacity-80">家園</label>
+                <label class="text-xs uppercase tracking-wide opacity-80">族裔&國家</label>
                 <input type="text" v-model="store.characterInfo.homeland" class="w-full bg-white/20 border border-white/30 rounded px-2 py-1 text-sm" />
               </div>
               <div>
@@ -377,7 +394,7 @@
           <!-- Experiences -->
           <div class="section">
             <div class="text-xl font-serif text-[#5a4a3a] text-center mb-2">
-              經歷
+              經歷（含序章）
             </div>
             <img :src="assetPath('/assets/sheet/deco1.svg')" class="pb-2"/>
             <textarea v-model="store.experiences" class="w-full border border-[#8b7355] rounded px-3 py-3 text-sm bg-white resize-none" 
@@ -518,7 +535,8 @@ watch(() => [
   store.tttNotes,
   store.experiences,
   store.memories,
-  store.characterInfo
+  store.characterInfo,
+  store.conditions
 ], () => {
   store.saveToLocalStorage()
 }, { deep: true })
@@ -551,6 +569,10 @@ const toggleCategoryLevel = (categoryId: string, clickedIndex: number) => {
 
 const toggleSkillLevel = (categoryId: string, skillName: string, clickedIndex: number) => {
   store.toggleSkillLevel(categoryId, skillName, clickedIndex)
+}
+
+const updateConditionName = (index: number, newName: string) => {
+  store.updateConditionName(index, newName)
 }
 
 const skillCategories = computed(() => [
